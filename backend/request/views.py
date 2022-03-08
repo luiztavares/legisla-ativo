@@ -52,7 +52,7 @@ def updateAutoria():
             for autorJson in autoria['AutoriaMateria']['Materia']['Autoria']['Autor']:
                 autor = Autoria.fromJson(autorJson)
                 autor.save()
-                autor.materia.add(materia)
+                materia.autoria.add(autor)
         if( 'Iniciativa' in autoria['AutoriaMateria']['Materia']):
             iniciativa = Iniciativa.fromJson(autoria['AutoriaMateria']['Materia']['Iniciativa'])
             iniciativa.save()

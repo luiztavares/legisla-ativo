@@ -1,3 +1,4 @@
+from operator import mod
 from django.db import models
 
 # Create your models here.
@@ -13,6 +14,8 @@ class Materia(models.Model):
     autor = models.CharField(max_length=100)
     data = models.DateField()
     url_detalhe_materia = models.URLField()
+    autoria = models.ManyToManyField('Autoria')
+
 
     @classmethod
     def from_json(cls, json):
@@ -92,7 +95,6 @@ class Autoria(models.Model):
     descricaoTipoAutor = models.CharField(max_length=100)
     numOrdemAutor = models.IntegerField()
     identificacaoParlamentar = models.ForeignKey(Parlamentar,on_delete=models.PROTECT,null=True)
-    materia = models.ManyToManyField(Materia)
 
     @classmethod
     def fromJson(cls,json):
@@ -109,3 +111,21 @@ class Autoria(models.Model):
 
         )
         return autor
+
+class Emenda(models.Model):
+    codigoEmenda = models.BigIntegerField(primary_key=True)
+    numeroEmenda = models.IntegerField()
+    dataApresentacao = models.DateField()
+    colegiadoApresentacao = models.CharField(max_length=100)
+    descricaoTurno = models.CharField(max_length=100)
+    descricaoTipoEmenda = models.CharField(max_length=100)
+    materia = models.ForeignKey(Materia, on_delete=models.PROTECT)
+
+class TextoEmenda(models.Model):
+    codigoText = models.BigIntegerField(primary_key=True)
+    tipoDocumento = models.CharField(max_length=100)
+    descricaoTipoTexto = models.CharField(max_length=100)
+    urlTexto = models.URLField()
+    descricaoTexto = models.TextField()
+    
+
