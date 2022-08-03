@@ -1,0 +1,68 @@
+version: '3.9'
+
+services:
+  backend:
+    build:
+      context: .
+    command: >
+      sh -c  "python manage.py wait_for_db &&
+              python manage.py migrate --run-syncdb &&
+
+              python manage.py runserver 0.0.0.0:8000"
+    ports:
+      - 8000:8000
+    volumes:
+      - ./backend:/backend
+    environment:
+      - SECRET_KEY=devsecretkey
+      - DEBUG=1
+      - DB_HOST=db
+      - DB_NAME=devdb
+      - DB_USER=devuser
+      - DB_PASS=changeme
+    depends_on:
+      - db
+
+  db:
+    image: postgres:13-alpine
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_DB=devdb
+      - POSTGRES_USER=devuser
+      - POSTGRES_PASSWORD=changeme
+
+  # elasticsearch:
+  #   container_name: elasticsearch
+  #   hostname: elasticsearch
+  #   image: "docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_VERSION}"
+  #   environment:
+  #     - http.host=0.0.0.0
+  #     - transport.host=127.0.0.1
+  #     - bootstrap.memory_lock=true
+  #     - "ES_JAVA_OPTS=-Xms${ES_JVM_HEAP} -Xmx${ES_JVM_HEAP}"
+  #   ulimits:
+  #     memlock:
+  #       soft: -1
+  #       hard: -1
+  #   volumes:
+  #     - type: bind
+  #       source: ./config/elasticsearch/elasticsearch.yml
+  #       target: /usr/share/elasticsearch/config/elasticsearch.yml
+  #       read_only: false       
+  #     - ./data/elasticsearch:/usr/share/elasticsearch/data
+  #   #Port 9200 is available on the host. Need to for user to access as well as Packetbeat
+  #   ports: ['9200:9200']
+  #   #Healthcheck to confirm availability of ES. Other containers wait on this.
+  #   healthcheck:
+  #     test: ["CMD", "curl","-s" ,"-f", "-u", "elastic:${ES_PASSWORD}", "http://localhost:9200/_cat/health"]
+  #   #Internal network for the containers
+
+# volumes:
+#   #Es data
+#   esdata:
+#     driver: local
+#     driver_opts:
+#         type: 'none'
+#         o: 'bind'
+#         device: './data/elasticsearch'
