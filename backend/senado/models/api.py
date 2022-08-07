@@ -1,3 +1,4 @@
+from unittest.util import _MAX_LENGTH
 from django.db import models
 from core.tools import Request
 
@@ -75,3 +76,298 @@ class MateriaTextos(models.Model,Request):
     @property
     def url(self):
         return f'https://legis.senado.leg.br/dadosabertos/materia/textos/{self.codigo}'
+
+class MateriaMovimentacoes(models.Model,Request):
+    'Obtém a movimentação da matéria, incluindo tramitação, prazos, despachos, situação'
+
+    codigo = models.BigIntegerField(primary_key=True) # Código (ID) da matéria. Identificador único da matéria.
+    dataref = models.CharField(max_length=8) # (opcional), formato YYYYMMDD - Data de referência para filtrar tramitações
+    v = models.IntegerField() # (opcional) - Versão do serviço
+
+    @property
+    def url(self):
+        return f'https://legis.senado.leg.br/dadosabertos/materia/movimentacoes/{self.codigo}'
+
+class MateriaVotacoes(models.Model,Request):
+    'Obtém as votações de uma matéria'
+
+    codigo = models.BigIntegerField(primary_key=True) # Código (ID) da matéria. Identificador único da matéria.
+    v = models.IntegerField() # (opcional) - Versão do serviço
+
+    @property
+    def url(self):
+        return f'https://legis.senado.leg.br/dadosabertos/materia/votacoes/{self.codigo}'
+
+class MateriaListaPrazo(models.Model,Request):
+    'Obtém a lista de matérias cumprindo prazo em plenário ou comissões. Se quiser que retorne todos os tipos de prazo, informe "0" (zero) para o código do prazo.'
+
+    codPrazo = models.BigIntegerField(primary_key=True, default=0) # Código do tipo do prazo
+    comissao = models.CharField(max_length=100)
+    tipo = models.CharField(max_length=100)
+    v = models.IntegerField() # (opcional) - Versão do serviço
+
+    @property
+    def url(self):
+        return f'https://legis.senado.leg.br/dadosabertos/materia/lista/prazo/{self.codPrazo}'
+
+class MateriaLegislaturaAtual(models.Model,Request):
+    "Lista as matérias que estão em tramitação ou que tramitaram na Legislatura atual. Atenção: para pesquisar por período da última atualização, utilize o serviço de matérias atualizadas."
+    
+    url = 'https://legis.senado.leg.br/dadosabertos/materia/legislaturaatual?'
+    class Boleana(models.TextChoices):
+        S = 'S', "Sim"
+        N = 'N', "Não"
+
+    ano = models.CharField(max_length=4)  # (opcional) ano da matéria
+    numero = models.BigIntegerField() # (opcional) número da matéria
+    sigla = models.CharField(max_length=50) # (opcional) sigla da matéria
+    tramitando = models.CharField(max_length=1,choices=Boleana.choices) # (opcional) indica se retorna apenas as matérias que estão tramitando ("S") ou não ("N")
+    v = models.CharField(max_length=10) # (opcional) versão do serviço
+
+class MateriaTramintando(models.Model,Request):
+    "Lista as matérias que estão em tramitação (não tem informações de comissões)"
+    
+    url = 'https://legis.senado.leg.br/dadosabertos/materia/tramitando?'
+
+    ano = models.CharField(max_length=4)  # (opcional) ano da matéria
+    data = models.CharField(max_length=8) # (opcional) formato (YYYYMMDD) - Parâmetro usado para que sejam retornadas apenas as matérias cuja última atualização é igual ou posterior à data informada
+    hora = models.CharField(max_length=6) # (opcional) formato (HHMISS) - Onde HH é no padrão 24 horas e MI representa os minutos, com 2 dígitos - parâmetro usado para que sejam retornadas apenas as matérias cuja hora da última atualização é igual ou posterior à hora informada. Deve ser informado apenas se a data também for informada.
+    numero = models.BigIntegerField() # (opcional) número da matéria
+    sigla = models.CharField(max_length=50) # (opcional) sigla da matéria
+    v = models.CharField(max_length=10) # (opcional) versão do serviço
+
+class PlenarioResultadoVetoDispositivo(models.Model,Request):
+    'SERVICO ESTRNAHO Obtém o resultado da votação nominal de um dispositivo de veto'
+
+    codigo = models.BigIntegerField() # código do dispositivo
+    v = models.CharField(max_length=10) # (opcional) versão do serviço
+
+    @property
+    def url(self):
+        return f'https://www.congressonacional.leg.br/dados/plenario/resultado/veto/dispositivo/{self.codigo}'
+
+class PlenarioResultadoVeto(models.Model,Request):
+    'Obtém o resultado da votação nominal de um item de veto'
+
+    codigo = models.BigIntegerField() # código do Veto
+    v = models.CharField(max_length=10) # (opcional) versão do serviço
+
+    @property
+    def url(self):
+        return f'https://www.congressonacional.leg.br/dados/plenario/resultado/veto/{self.codigo}'
+
+class PlenarioResultadoVetoMateria(models.Model,Request):
+    'Obtém o resultado da votação nominal de vetos de uma matéria'
+
+    codigo = models.BigIntegerField() # código da matéria
+    v = models.CharField(max_length=10) # (opcional) versão do serviço
+
+    @property
+    def url(self):
+        return f'https://www.congressonacional.leg.br/dados/plenario/resultado/veto/materia/{self.codigo}'
+
+
+class SenadorRelatorias(models.Model,Request):
+    'Obtém as matérias de relatoria de um senador'
+
+    codigo = models.BigIntegerField() # código do senador
+    ano = models.CharField(max_length=4) # (opcional) - Ano da matéria - retorna apenas as matérias do ano informado	n/a
+    comissao = models.CharField(max_length=10) # (opcional) - Sigla da comissão - retorna apenas as relatorias da comissão informada.	n/a
+    numero = models.CharField(max_length=10) # (opcional) - Número da matéria - retorna apenas as matérias do número informado.	n/a
+    sigla = models.CharField(max_length=20) # (opcional) - Sigla da matéria - retorna apenas as matérias da sigla informada.	n/a
+    tramitando = models.CharField(max_length=1) # (opcional) (S ou N) - retorna apenas as matérias que estão tramitando (S) ou apenas as que não estão (N). Se não for informado, retorna ambas.	n/a
+    v = models.CharField(max_length=10) # (opcional) versão do serviço
+
+    @property
+    def url(self):
+        return f' https://legis.senado.leg.br/dadosabertos/senador/{self.codigo}/relatorias'
+
+class SenadorAutorias(models.Model,Request):
+    'Obtém as matérias de autoria de um senador'
+
+    codigo = models.BigIntegerField() # código do senador
+    ano = models.CharField(max_length=4) # (opcional) - Ano da matéria - retorna apenas as matérias do ano informado	n/a
+    numero = models.CharField(max_length=10) # (opcional) - Número da matéria - retorna apenas as matérias do número informado.	n/a
+    primeiro = models.CharField(max_length=1) # (opcional) (S ou N) - retorna apenas as matérias cujo senador é o primeiro autor, ou seja, o autor principal (S) ou apenas as que o senador é coautor (N).	
+    sigla = models.CharField(max_length=20) # (opcional) - Sigla da matéria - retorna apenas as matérias da sigla informada.	n/a
+    tramitando = models.CharField(max_length=1) # (opcional) (S ou N) - retorna apenas as matérias que estão tramitando (S) ou apenas as que não estão (N). Se não for informado, retorna ambas.	n/a
+    v = models.CharField(max_length=10) # (opcional) versão do serviço
+
+    @property
+    def url(self):
+        return f' https://legis.senado.leg.br/dadosabertos/senador/{self.codigo}/autorias'
+
+class SenadorApartes(models.Model,Request):
+    'Obtém a relação de apartes do senador'
+
+    codigo = models.BigIntegerField() # código do senador
+    casa = models.CharField(max_length=2) # (opcional) - Sigla da casa aonde ocorre o pronunciamento - SF (Senado), CD (Câmara), CN (Congresso), PR (Presidência), CR (Comissão Representativa do Congresso), AC (Assembléia Constituinte)
+    dataFim = models.CharField(max_length=8) # (opcional) - Data de fim do período da pesquisa no formato AAAAMMDD
+    dataInicio = models.CharField(max_length=8) # (opcional) - Data de fim do período da pesquisa no formato AAAAMMDD
+    numeroSessao = models.CharField(max_length=10) # (opcional) - Número da sessão plenária
+    tipoSessao = models.CharField(max_length=10) # (opcional) - Tipo da sessão plenária (veja serviço que lista os tipos de sessão)
+    v = models.CharField(max_length=10) # (opcional) versão do serviço
+
+    @property
+    def url(self):
+        return f' https://legis.senado.leg.br/dadosabertos/senador/{self.codigo}/apartes'
+
+class SenadorDiscursos(models.Model,Request):
+    'Obtém a relação de discursos do senador'
+
+    codigo = models.BigIntegerField() # código do senador
+    casa = models.CharField(max_length=2) # (opcional) - Sigla da casa aonde ocorre o pronunciamento - SF (Senado), CD (Câmara), CN (Congresso), PR (Presidência), CR (Comissão Representativa do Congresso), AC (Assembléia Constituinte)
+    dataFim = models.CharField(max_length=8) # (opcional) - Data de fim do período da pesquisa no formato AAAAMMDD
+    dataInicio = models.CharField(max_length=8) # (opcional) - Data de fim do período da pesquisa no formato AAAAMMDD
+    numeroSessao = models.CharField(max_length=10) # (opcional) - Número da sessão plenária
+    tipoSessao = models.CharField(max_length=10) # (opcional) - Tipo da sessão plenária (veja serviço que lista os tipos de sessão)
+    v = models.CharField(max_length=10) # (opcional) versão do serviço
+
+    @property
+    def url(self):
+        return f' https://legis.senado.leg.br/dadosabertos/senador/{self.codigo}/discursos'
+
+class PlenarioListaDiscursos(models.Model,Request):
+    'Obtém a lista de discursos da(s) sessão(ões) que ocorreram dentro do período informado'
+
+    dataFim = models.CharField(max_length=8) # Data fim para as sessões da consulta no formato AAAAMMDD``
+    dataInicio = models.CharField(max_length=8) # Data inicial para as sessões da consulta no formato AAAAMMDD
+    siglaCasa = models.CharField(max_length=2) # ((opcional) - Sigla da casa (SF = Senado Federal, CN = Congresso Nacional)
+    numeroSessao = models.CharField(max_length=10) # (opcional) - Número da sessao
+    tipoSessao = models.CharField(max_length=10) # (opcional) - Sigla do tipo de sessão
+    v = models.CharField(max_length=10) # (opcional) versão do serviço
+
+    @property
+    def url(self):
+        return f'https://legis.senado.leg.br/dadosabertos/plenario/lista/discursos/{self.dataInicio}/{self.dataInicio}'
+
+
+class SenadorLiderancas(models.Model,Request):
+    'Obtém os cargos de liderança de um senador'
+
+    codigo = models.BigIntegerField() # Código do senador
+    v = models.CharField(max_length=10) # (opcional) versão do serviço
+
+    @property
+    def url(self):
+        return f'https://legis.senado.leg.br/dadosabertos/senador/{self.codigo}/liderancas'
+
+class SenadorCargos(models.Model,Request):
+    'Obtém os cargos de um senador'
+
+    codigo = models.BigIntegerField() # Código do senador
+    comissao = models.CharField(max_length=20) # (opcional) - Sigla da comissão - retorna apenas os cargos na comissão informada.
+    indAtivos = models.CharField(max_length=1) # (opcional) - Se "S" retorna apenas os cargos atuais, se "N" retorna apenas os já finalizados
+    v = models.CharField(max_length=10) # (opcional) versão do serviço
+
+    @property
+    def url(self):
+        return f'https://legis.senado.leg.br/dadosabertos/senador/{self.codigo}/cargos'
+
+
+class SenadorComissoes(models.Model,Request):
+    'Obtém Comissoes de um senador'
+
+    codigo = models.BigIntegerField() # Código do senador
+    comissao = models.CharField(max_length=20) # (opcional) - Sigla da comissão - retorna apenas os cargos na comissão informada.
+    indAtivos = models.CharField(max_length=1) # (opcional) - Se "S" retorna apenas os cargos atuais, se "N" retorna apenas os já finalizados
+    v = models.CharField(max_length=10) # (opcional) versão do serviço
+
+    @property
+    def url(self):
+        return f'https://legis.senado.leg.br/dadosabertos/senador/{self.codigo}/comissoes'
+
+class Senador(models.Model,Request):
+    'Obtém detalhes de um senador'
+
+    codigo = models.BigIntegerField() # Código do senador
+    v = models.CharField(max_length=10) # (opcional) versão do serviço
+
+    @property
+    def url(self):
+        return f'https://legis.senado.leg.br/dadosabertos/senador/{self.codigo}'
+
+class SenadorHistorico(models.Model,Request):
+    'Obtém todos os detalhes de um parlamentar no(s) mandato(s) como senador (mandato atual e anteriores, se houver)'
+
+    codigo = models.BigIntegerField() # Código do senador
+    v = models.CharField(max_length=10) # (opcional) versão do serviço
+
+    @property
+    def url(self):
+        return f'https://legis.senado.leg.br/dadosabertos/senador/{self.codigo}/historico'
+
+class SenadorMandatos(models.Model,Request):
+    'Obtém os mandatos que o senador já teve'
+
+    codigo = models.BigIntegerField() # Código do senador
+    v = models.CharField(max_length=10) # (opcional) versão do serviço
+
+    @property
+    def url(self):
+        return f'https://legis.senado.leg.br/dadosabertos/senador/{self.codigo}/mandatos'
+
+
+class SenadorFiliacoes(models.Model,Request):
+    'Obtém as filiações partidárias que o senador já teve'
+
+    codigo = models.BigIntegerField() # Código do senador
+    v = models.CharField(max_length=10) # (opcional) versão do serviço
+
+    @property
+    def url(self):
+        return f'https://legis.senado.leg.br/dadosabertos/senador/{self.codigo}/filiacoes'
+
+
+class SenadorVotacoes(models.Model,Request):
+    'Obtém as votações de um senador'
+
+    codigo = models.BigIntegerField() # Código do senador
+    ano = models.CharField(max_length=4) # (opcional) - Ano da matéria - retorna apenas as matérias do ano informado	n/a
+    numero = models.BigIntegerField() # (opcional) - Número da matéria - retorna apenas as matérias do número informado.
+    sigla = models.CharField(max_length=50) # (opcional) sigla da matéria
+    tramitando = models.CharField(max_length=1) # (opcional) (S ou N) - retorna apenas as matérias que estão tramitando (S) ou apenas as que não estão (N). Se não for informado, retorna ambas.	n/a
+    v = models.CharField(max_length=10) # (opcional) versão do serviço
+
+    @property
+    def url(self):
+        return f'https://legis.senado.leg.br/dadosabertos/senador/{self.codigo}/votacoes'
+
+class SenadorListaLegislatura(models.Model,Request):
+    'Obtém a lista de senadores de uma legislatura'
+
+    legislatura = models.BigIntegerField() # Número da legislatura
+    exercicio = models.CharField(max_length=1) # (opcional) - Filtrar apenas parlamentares que entraram em exercício "S" (sim) ou apenas os que não entraram "N" (não)
+    participacao = models.CharField(max_length=1) # (opcional) - Tipo de participação: "T" (titular) / "S" (suplente)
+    uf = models.CharField(max_length=2) # (opcional) - Sigla da UF do mandato
+    v = models.CharField(max_length=10) # (opcional) versão do serviço
+
+    @property
+    def url(self):
+        return f'https://legis.senado.leg.br/dadosabertos/senador/lista/legislatura/{self.legislatura}'
+
+class SenadorListaLegislaturaIntervalo(models.Model,Request):
+    'Obtém a lista de senadores de um intervalo de legislatura'
+
+    legislaturaFim = models.BigIntegerField() # Número da legislatura
+    legislaturaInicio = models.BigIntegerField() # Número da legislatura
+    exercicio = models.CharField(max_length=1) # (opcional) - Filtrar apenas parlamentares que entraram em exercício "S" (sim) ou apenas os que não entraram "N" (não)
+    participacao = models.CharField(max_length=1) # (opcional) - Tipo de participação: "T" (titular) / "S" (suplente)
+    uf = models.CharField(max_length=2) # (opcional) - Sigla da UF do mandato
+    v = models.CharField(max_length=10) # (opcional) versão do serviço
+
+    @property
+    def url(self):
+        return f'https://legis.senado.leg.br/dadosabertos/senador/lista/legislatura/{self.legislaturaInicio}/{self.legislaturaFim}'
+
+class PlenarioAgenda(models.Model,Request):
+    'Obtém a agenda do dia do plenário do Congresso'
+
+    data = models.CharField(max_length=8) # Número da legislatura
+    v = models.CharField(max_length=10) # (opcional) versão do serviço
+
+    @property
+    def url(self):
+        return f'https://www.congressonacional.leg.br/dados/plenario/agenda/{self.data}'
+
+
