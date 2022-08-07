@@ -34,10 +34,106 @@ def testMateriaRelatorias():
     print(materiaRelatorias)
 
 def testMateriaTextos():
-    materiaRelatorias = MateriaTextos(codigo=152001).get()
-    print(materiaRelatorias)
+    materiaTextos = MateriaTextos(codigo=152001).get()
+    print(materiaTextos)
 
-testMateriaTextos()
+def testMateriaMovimentacoes():
+    materiaMovimentacoes = MateriaMovimentacoes(codigo=152001).get()
+    print(materiaMovimentacoes)
+
+def testMateriaVotacoes():
+    materiaVotacoes = MateriaVotacoes(codigo=137178).get()
+    print(materiaVotacoes)
+
+def testMateriaListaPrazo():
+    materiaListaPrazo = MateriaListaPrazo().get()
+    print(materiaListaPrazo)
+
+def testMateriaLegislaturaAtual():
+    materia = MateriaLegislaturaAtual().get()
+    print(materia)
+
+def testMateriaTramitando():
+    materia = MateriaTramintando().get()
+    print(materia)
+
+def testPlenarioResultadoVetoDispositivo():
+    veto = PlenarioResultadoVetoDispositivo(codigo=137178).get()
+    print(veto)
+
+def testPlenarioResultadoVeto():
+    veto = PlenarioResultadoVeto(codigo=11762).get()
+    print(veto)
+
+def testPlenarioResultadoVetoMateria():
+    veto = PlenarioResultadoVetoMateria(codigo=137178).get()
+    print(veto)
+
+def testSenadorRelatorias():
+    relatorias = SenadorRelatorias(codigo=4981).get()
+    print(relatorias)
+
+def testSenadorAutorias():
+    autorias = SenadorAutorias(codigo=4981).get()
+    print(autorias)
+
+def testSenadorApartes():
+    apartes = SenadorApartes(codigo=4981).get()
+    print(apartes)
+
+def testSenadorDiscursos():
+    discursos = SenadorDiscursos(codigo=4981).get()
+    print(discursos)
+
+def testPlenarioListaDiscursos():
+    discursos = PlenarioListaDiscursos(dataInicio='20130301',dataFim='20130331').get()
+    print(discursos)
+
+def testSenadorLiderancas():
+    liderancas = SenadorLiderancas(codigo=4981).get()
+    print(liderancas)
+
+def testSenadorCargos():
+    cargos = SenadorCargos(codigo=4981).get()
+    print(cargos)
+
+def testSenadorComissoes():
+    comissoes = SenadorComissoes(codigo=4981).get()
+    print(comissoes)
+
+def testSenador():
+    senador = Senador(codigo=4981).get()
+    print(senador)
+
+def testSenadorHistorico():
+    senador = SenadorHistorico(codigo=4981).get()
+    print(senador)
+
+def testSenadorMandatos():
+    mandatos = SenadorMandatos(codigo=4981).get()
+    print(mandatos)
+
+def testSenadorFiliacoes():
+    filiacoes = SenadorFiliacoes(codigo=4981).get()
+    print(filiacoes)
+
+def testSenadorVotacoes():
+    votacoes = SenadorVotacoes(codigo=4981).get()
+    print(votacoes)
+
+def testSenadorListaLegislatura():
+    senador = SenadorListaLegislatura(legislatura=22).get()
+    print(senador)
+
+def testSenadorListaLegislatura():
+    senador = SenadorListaLegislaturaIntervalo(legislaturaInicio=22,legislaturaFim=25,).get()
+    print(senador)
+
+def testPlenarioAgenda():
+    agenda = PlenarioAgenda(data='20220510',).get()
+    print(agenda)
+
+testPlenarioAgenda()
 
 # Create your tests here.
 
