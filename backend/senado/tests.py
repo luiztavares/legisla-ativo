@@ -133,7 +133,43 @@ def testPlenarioAgenda():
     agenda = PlenarioAgenda(data='20220510',).get()
     print(agenda)
 
-testPlenarioAgenda()
+def testPlenarioLegislaturaSessao():
+    agenda = PlenarioLegislaturaSessao(dataSessaoLeg='20210510',).get()
+    print(agenda)
+
+def testComissaoComposicaoAtualMista():
+    comissao = ComissaoComposicaoAtualMista(codigo='20210510',).get()
+    print(comissao)
+
+def testComissaoTipo():
+    comissao = ComissaoTipo(tipo='cpmi',).get()
+    print(comissao)
+
+def testMateriaDistribuicaoAutoria():
+    comissao = MateriaDistribuicaoAutoria(siglaComissao='CCJ').get()
+    print(comissao)
+
+def testLegislacaoLista():
+    leis = LegislacaoLista(ano=2021).get()
+    print(leis)
+
+def testLegislacaoTermos():
+    termo = LegislacaoTermos().get()
+    print(termo)
+
+def testLegislacao():
+    termo = Legislacao(codigo=397127).get()
+    print(termo)
+
+def testLegislacaoData():
+    termo = LegislacaoData(tipo='RSF',numdata=57,anoseq=1985).get()
+    print(termo)
+
+def testHorasExtras():
+    horas = HorasExtras(ano='2022',mes='03').get()
+    print(horas)
+
+testHorasExtras()
 
 # Create your tests here.
 

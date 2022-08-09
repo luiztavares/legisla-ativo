@@ -1,4 +1,3 @@
-from unittest.util import _MAX_LENGTH
 from django.db import models
 from core.tools import Request
 
@@ -370,4 +369,130 @@ class PlenarioAgenda(models.Model,Request):
     def url(self):
         return f'https://www.congressonacional.leg.br/dados/plenario/agenda/{self.data}'
 
+class PlenarioLegislaturaSessao(models.Model,Request):
+    'Obtém a agenda do dia do plenário do Congresso'
+
+    dataSessaoLeg = models.CharField(max_length=8) # Número da legislatura
+    v = models.CharField(max_length=10) # (opcional) versão do serviço
+
+    @property
+    def url(self):
+        return f'https://legis.senado.leg.br/dadosabertos/plenario/legislatura/sessaoLegislativa/{self.dataSessaoLeg}'
+
+class ComissaoComposicaoAtualMista(models.Model,Request):
+    'Obtém a agenda do dia do plenário do Congresso'
+
+    codigo = models.CharField(max_length=8) # código da comissão
+    v = models.CharField(max_length=10) # (opcional) versão do serviço
+
+    @property
+    def url(self):
+        return f'https://www.congressonacional.leg.br/dados/comissao/composicao/atual/mista/{self.codigo}'
+
+class ComissaoComposicaoResumidaMistaPeriodo(models.Model,Request):
+    'Obtém a composição resumida de uma comissão mista, por períodor'
+
+    codigo = models.BigIntegerField() # código da comissao
+    dataFim = models.CharField(max_length=8) # (opcional) - Data de fim do período da pesquisa no formato AAAAMMDD
+    dataInicio = models.CharField(max_length=8) # (opcional) - Data de fim do período da pesquisa no formato AAAAMMDD
+    v = models.CharField(max_length=10) # (opcional) versão do serviço
+
+    @property
+    def url(self):
+        return f'https://www.congressonacional.leg.br/dados/comissao/composicao/resumida/mista/{self.codigo}/{self.dataInicio}/{self.dataFim}'
+
+
+class ComissaoTipo(models.Model,Request):
+    'Obtém a composição das Comissões do Congresso Nacional'
+
+    tipo = models.CharField(max_length=20) # tipo da comissão: cpmi, veto, permanente, mpv, mistaEspecial, mesa, trabalhoCCS, representativa
+    v = models.CharField(max_length=10) # (opcional) versão do serviço
+
+    @property
+    def url(self):
+        return f'https://www.congressonacional.leg.br/dados/comissao/lista/{self.tipo}'
+
+class MateriaDistribuicaoAutoria(models.Model,Request):
+    'Obtém a distribuição de autoria de matérias de um senador. Necessário informar o código do parlamentar.'
+
+    codParlamentar = models.CharField(max_length=20) # (opcional) - Código do parlamentar	
+    siglaComissao = models.CharField(max_length=20) # (opcional) - Sigla da comissão
+    v = models.CharField(max_length=10) # (opcional) versão do serviço
+
+    @property
+    def url(self):
+        return f'https://legis.senado.leg.br/dadosabertos/materia/distribuicao/autoria'
+
+class MateriaDistribuicaoAutoriaComissao(models.Model,Request):
+    'Obtém a distribuição de autoria de matérias em uma comissão'
+
+    codParlamentar = models.CharField(max_length=20) # (opcional) - Código do parlamentar	
+    siglaComissao = models.CharField(max_length=20) # (opcional) - Sigla da comissão
+    v = models.CharField(max_length=10) # (opcional) versão do serviço
+
+    @property
+    def url(self):
+        return f'https://legis.senado.leg.br/dadosabertos/materia/distribuicao/autoria/{self.siglaComissao}'
+
+
+class LegislacaoLista(models.Model,Request):
+    'Obtém a lista de normas da base do Senado Federal ATENÇÃO: é necessário informar uma das seguintes combinações de parâmetros: "numero" ou "tipo" e "numero" ou "tipo" e "ano" ou "numero" e "ano" O parâmetro "versao" é opcional'
+
+    ano	= models.CharField(max_length=4) # (opcional) - Ano da norma
+    complemento = models.CharField(max_length=100) # (opcional) - letra de complemento (somente para versão 3 ou posterior)
+    data = models.CharField(max_length=8) # (opcional) formato (YYYYMMDD) - Data da assinatura da norma (somente para versão 3 ou posterior)
+    ident = models.CharField(max_length=10) # (opcional) - letra de identificação (somente para versão 3 ou posterior)
+    numero = models.IntegerField() # (opcional) - Número da norma
+    reedicao = models.BigIntegerField() # (opcional) - número sequencial e reedição (somente para versão 3 ou posterior)
+    seq = models.BigIntegerField() # (opcional) - número sequencial da assinatura da norma na data (somente para versão 3 ou posterior)
+    tipo = models.CharField(max_length=20) # (opcional) - Sigla do tipo da norma
+    v = models.CharField(max_length=10) # (opcional) versão do serviço
+
+    @property
+    def url(self):
+        return f'https://legis.senado.leg.br/dadosabertos/legislacao/lista'
+
+class LegislacaoTermos(models.Model,Request):
+    'Obtém a lista de normas da base do Senado Federal ATENÇÃO: é necessário informar uma das seguintes combinações de parâmetros: "numero" ou "tipo" e "numero" ou "tipo" e "ano" ou "numero" e "ano" O parâmetro "versao" é opcional'
+
+    termo	= models.TextField() # Filtro de palavras
+    tipo = models.CharField(max_length=20) # (opcional) - Sigla do tipo de termo
+    v = models.CharField(max_length=10) # (opcional) versão de serviço
+
+    @property
+    def url(self):
+        return f'https://legis.senado.leg.br/dadosabertos/legislacao/termos'
+
+class Legislacao(models.Model,Request):
+    'Obtém detalhes de uma norma através do código'
+
+    codigo = models.BigIntegerField() # código da comissao
+    v = models.CharField(max_length=10) # (opcional) versão do serviço
+
+    @property
+    def url(self):
+        return f'https://legis.senado.leg.br/dadosabertos/legislacao/{self.codigo}'
+
+class LegislacaoData(models.Model,Request):
+    'Obtém detalhes do documento através do tipo/número/ano ou através da data de assinatura/sequencial'
+
+    anoseq = models.BigIntegerField() # ano da data de assinatura do documento ou sequencial
+    numdata = models.BigIntegerField() # número do documento ou data da assinatura
+    tipo = models.CharField(max_length=20) # Sigla do tipo do documento
+    v = models.CharField(max_length=10) # (opcional) versão do serviço
+
+    @property
+    def url(self):
+        return f'https://legis.senado.leg.br/dadosabertos/legislacao/{self.tipo}/{self.numdata}/{self.anoseq}'
+
+
+class HorasExtras(models.Model,Request):
+    'Obtém detalhes do documento através do tipo/número/ano ou através da data de assinatura/sequencial'
+
+    ano = models.CharField(max_length=4,help_text='path') # ano 
+    mes = models.CharField(max_length=2,help_text='path') # mes
+
+    @property
+    def url(self):
+        return f'https://adm.senado.gov.br/dadosabertos-gestaopessoas/api/dadosabertos/v1/horas-extras/{self.ano}/{self.mes}'
 
