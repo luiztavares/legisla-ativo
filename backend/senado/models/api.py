@@ -496,3 +496,4 @@ class HorasExtras(models.Model,Request):
     def url(self):
         return f'https://adm.senado.gov.br/dadosabertos-gestaopessoas/api/dadosabertos/v1/horas-extras/{self.ano}/{self.mes}'
 
+
