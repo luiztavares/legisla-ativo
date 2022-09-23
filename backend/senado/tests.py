@@ -1,11 +1,13 @@
 from django.test import TestCase
 from .models.api import *
+from .services import *
 
 from datetime import date
 from dateutil.relativedelta import relativedelta
 
+
 def testPesquisaMateriaService():
-    FIRST_DATE = date(2022,1,1)
+    FIRST_DATE = date(2020,1,1)
     last_date = FIRST_DATE
     dataInicioApresentacao = last_date
     dataFimApresentacao = dataInicioApresentacao + relativedelta(years=1) - relativedelta(days=1)
@@ -14,15 +16,16 @@ def testPesquisaMateriaService():
         dataInicioApresentacao=dataInicioApresentacao.strftime('%Y%m%d'),
         dataFimApresentacao=dataFimApresentacao.strftime('%Y%m%d'),
     )
+    materia_pesquisa_lista.unpack()
 
-    print(f'inicio: {dataInicioApresentacao}, fim: {dataFimApresentacao}')
-    return materia_pesquisa_lista.get()
+    print(f'inicio: {dataInicioApresentacao}, fim: {dataFimApresentacao}, {len(materia_pesquisa_lista.body)}')
+    return 
 
 def testAutoriaRequest():
     autoria = MateriaAutoria(codigo=152001).get()
 
 def testMateriaAtualizacoes():
-    materiaAtualizacoes = MateriaAtualizacoes(codigo=152001,numdias=365).get()
+    materiaAtualizacoes = MateriaAtualizacoes(codigo=152001,numdias=999999).get()
     print(materiaAtualizacoes)
 
 def testMateriaEmendas():
@@ -169,7 +172,9 @@ def testHorasExtras():
     horas = HorasExtras(ano='2022',mes='03').get()
     print(horas)
 
-testHorasExtras()
+# atualizaTodosAutores()
+atualizaDetalhes()
+# atualizaTodasAsMaterias()
 
 # Create your tests here.
 

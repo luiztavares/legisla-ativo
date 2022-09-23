@@ -1,8 +1,17 @@
+from email.quoprimime import body_check
 import requests
 
-class Request:
+class Request():
+    def __init__(self):
+        self.body = None
+        self.code = None
 
-    def get_params(self):
+    @property
+    def func(self,body):
+        if(self.body):
+            return self.body
+        
+    def __get_params(self):
         params = dict()
         for field in self._meta.get_fields():
             key = field.name
@@ -12,11 +21,14 @@ class Request:
         return params
 
     def get(self):
-        
+        if(self.code):
+            return
+
         headers = {'Accept': 'application/json'}
-        params = self.get_params()
-        req = requests.get(url=self.url,headers=headers)
+        params = self.__get_params()
+        req = requests.get(url=self.url,headers=headers,params=params)
         try:
-            return req.json()
+            self.code = req.status_code
+            self.body = req.json()
         except:
-            print(req.status_code,params)
+            self.code = req.status_code

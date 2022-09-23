@@ -25,6 +25,13 @@ class PesquisaMateriaService(models.Model,Request):
     tramitando = models.CharField(max_length=1,choices=Boleana.choices) # (opcional) indica se retorna apenas as matérias que estão tramitando ("S") ou não ("N")
     v = models.CharField(max_length=10) # (opcional) versão do serviço
 
+    def unpack(self):
+        self.get()
+        try:
+            self.body = self.body['PesquisaBasicaMateria']['Materias']['Materia']
+        except:
+            self.body = []
+
 class MateriaAutoria(models.Model,Request):
     'Obtém a autoria de uma matéria'
 
@@ -34,6 +41,30 @@ class MateriaAutoria(models.Model,Request):
     @property
     def url(self):
         return f'https://legis.senado.leg.br/dadosabertos/materia/autoria/{self.codigo}'
+    
+    def unpack(self):
+        self.get()
+        try:
+            self.body = self.body['AutoriaMateria']['Materia']['Autoria']['Autor']
+        except:
+            self.body = []
+
+class MateriaDetalhes(models.Model,Request):
+    'Obtém as atualizações mais recentes em uma matéria'
+
+    codigo = models.BigIntegerField() # Código da matéria no banco de dados
+    v = models.IntegerField() # (opcional) - Versão do serviço
+
+    @property
+    def url(self):
+        return f'https://legis.senado.leg.br/dadosabertos/materia/{self.codigo}'
+
+    def unpack(self):
+        self.get()
+        try:
+            self.body = self.body['DetalheMateria']['Materia']
+        except:
+            self.body = []
 
 class MateriaAtualizacoes(models.Model,Request):
     'Obtém as atualizações mais recentes em uma matéria'
@@ -55,6 +86,13 @@ class MateriaEmendas(models.Model,Request):
     @property
     def url(self):
         return f'https://legis.senado.leg.br/dadosabertos/materia/emendas/{self.codigo}'
+
+    def unpack(self):
+        self.get()
+        try:
+            self.body = self.body['EmendaMateria']['Materia']['Emendas']['Emenda']
+        except:
+            self.body = []
 
 class MateriaRelatorias(models.Model,Request):
     'Obtém as relatorias de uma matéria'
@@ -495,5 +533,3 @@ class HorasExtras(models.Model,Request):
     @property
     def url(self):
         return f'https://adm.senado.gov.br/dadosabertos-gestaopessoas/api/dadosabertos/v1/horas-extras/{self.ano}/{self.mes}'
-
-
