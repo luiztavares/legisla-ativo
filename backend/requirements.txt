@@ -7,3 +7,5 @@ django-elasticsearch-dsl==7.2.0
 django-elasticsearch-dsl-drf==0.22.2
 requests
 python-dateutil
+PyPDF2
+django-extensions

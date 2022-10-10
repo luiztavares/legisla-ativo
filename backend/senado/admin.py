@@ -7,3 +7,6 @@ from .models.database import *
 admin.site.register(PesquisaMateriaService)
 admin.site.register(Materia)
 admin.site.register(Autoria)
+admin.site.register(NaturezaMateria)
+admin.site.register(OrigemMateria)
+admin.site.register(Assunto)

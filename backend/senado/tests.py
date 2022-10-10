@@ -173,8 +173,9 @@ def testHorasExtras():
     print(horas)
 
 # atualizaTodosAutores()
-atualizaDetalhes()
+# atualizaDetalhes()
 # atualizaTodasAsMaterias()
+atualizaMovimentacoes()
 
 # Create your tests here.
 

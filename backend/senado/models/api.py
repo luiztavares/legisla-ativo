@@ -125,6 +125,13 @@ class MateriaMovimentacoes(models.Model,Request):
     def url(self):
         return f'https://legis.senado.leg.br/dadosabertos/materia/movimentacoes/{self.codigo}'
 
+    def unpack(self):
+        self.get()
+        try:
+            self.body = self.body['MovimentacaoMateria']['Materia']
+        except:
+            self.body = []
+
 class MateriaVotacoes(models.Model,Request):
     'Obtém as votações de uma matéria'
 
